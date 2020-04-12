@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from SimpleVisTry import views
+from SimpleVisTry.views import DBData
 
 urlpatterns = [
+    path('', views.home, name='home'),
+    path('dbdata/', DBData.as_view(), name='home'),
     path('admin/', admin.site.urls),
 ]
