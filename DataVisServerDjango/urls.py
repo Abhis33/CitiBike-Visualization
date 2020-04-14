@@ -16,10 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from SimpleVisTry import views
-from SimpleVisTry.views import DBData
+from SimpleVisTry.views import subscriber_data
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('dbdata/', DBData.as_view(), name='home'),
+    path('api/subscriber_data/', subscriber_data.as_view(), name='home'),
     path('admin/', admin.site.urls),
 ]
