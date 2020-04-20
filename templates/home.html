@@ -12,20 +12,31 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
 
+  <script src='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css' rel='stylesheet' />
+
   <title>Whazzup</title>
 </head>
 
 <body>
 
-  <h1>My First Heading</h1>
-
-  <p>My first paragraph.</p>
+  <div class="col-lg-12">
+    <h1>My First Heading</h1>
+    <p>My first paragraph.</p>
+  </div>
 
   <!-- Chart js example start -->
-  <div class="col-sm-6">
-    <canvas id="myChart" width="400" height="400"></canvas>
+  <div class="col-sm-4">
+    <canvas id="myChart" width="400" height="300"></canvas>
   </div>
   <!-- Chart js example End -->
+
+  <!-- Mapbox example start -->
+  <div class="col-sm-8">
+    <p>Simple Map</p>
+    <div id='simple-map' style='width: 100%; height: 300px;'></div>
+  </div>
+  <!-- Mapbox example end -->
 
 </body>
 
@@ -44,7 +55,6 @@
       labels = data.subscriber_type
       defaultData = data.default
       setBarChart();
-
     },
     error: function(error_data) {
       console.log("Error")
@@ -52,6 +62,7 @@
     }
   })
 
+  // Chart Js script start
   function setBarChart() {
     var ctx = document.getElementById('myChart').getContext('2d');
     var myChart = new Chart(ctx, {
@@ -91,7 +102,65 @@
       }
     });
   }
+  // Chart Js script end
 
+  // Mapbox script start
+  mapboxgl.accessToken = 'pk.eyJ1Ijoic29naXBhIiwiYSI6ImNrOTR1dnEybjA1dG0zaGwyMnp0eXB0MzcifQ.lhRSsmYZBzQFDP61z6iPhQ';
+  var map = new mapboxgl.Map({
+  container: 'simple-map',
+  style: 'mapbox://styles/mapbox/streets-v11',
+  zoom: 11,
+  center: [-73.9926947,40.740647]
+  });
+
+  map.on('load', function() {
+  /* Sample feature from the `examples.8fgz4egr` tileset:
+  {
+  "type": "Feature",
+  "properties": {
+  "ethnicity": "White"
+  },
+  "geometry": {
+  "type": "Point",
+  "coordinates": [ -122.447303, 37.753574 ]
+  }
+  }
+  */
+  map.addSource('ethnicity', {
+  type: 'vector',
+  url: 'mapbox://examples.8fgz4egr'
+  });
+  map.addLayer({
+  'id': 'population',
+  'type': 'circle',
+  'source': 'ethnicity',
+  'source-layer': 'sf2010',
+  'paint': {
+  // make circles larger as the user zooms from z12 to z22
+  'circle-radius': {
+  'base': 1.75,
+  'stops': [[12, 2], [22, 180]]
+  },
+  // color circles by ethnicity, using a match expression
+  // https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-match
+  'circle-color': [
+  'match',
+  ['get', 'ethnicity'],
+  'White',
+  '#fbb03b',
+  'Black',
+  '#223b53',
+  'Hispanic',
+  '#e55e5e',
+  'Asian',
+  '#3bb2d0',
+  /* other */ '#ccc'
+  ]
+  }
+  });
+  });
+  // Mapbox script end
+  
   {% endblock %}
 </script>
 
