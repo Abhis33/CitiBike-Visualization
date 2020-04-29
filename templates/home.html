@@ -42,13 +42,13 @@
 <script>
   {% block jquery %}
 
-  var endpoint = '/api/subscriber_data'
+  var subscriber_endpoint = '/api/subscriber_data'
   var defaultData = []
   var labels = []
 
   $.ajax({
     method: "GET",
-    url: endpoint,
+    url: subscriber_endpoint,
     success: function(data) {
       console.log(data)
       labels = data.subscriber_type
@@ -104,12 +104,12 @@
   }
   // Chart Js script end
 
-  var endpoint = '/api/top_k_start_stn'
+  var top_k_endpoint = '/api/top_k_start_stn'
   var geojson_stn = []
 
   $.ajax({
     method: "GET",
-    url: endpoint,
+    url: top_k_endpoint,
     success: function(data) {
       console.log(data)
       geojson_stn = data
