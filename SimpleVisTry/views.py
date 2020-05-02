@@ -33,12 +33,11 @@ class top_k_start_stn(APIView):
     authentication_classes = []
     permission_classes = []
 
-    def get(self, request, format=None):
-        k = 5
+    def get(self, request, k = 5,format=None):
         stn_obj = CitiBike.objects.values("start_station_id","start_station_name","start_station_latitude","start_station_longitude").annotate(Count("id")).order_by('-id__count')[:k]
 
         #Need these stuff to plot on map
-        #start_station_id = []
+        #start_station_id
         #start_station_name
         #start_station_latitude
         #start_station_longitude
@@ -54,6 +53,39 @@ class top_k_start_stn(APIView):
                     "geometry": {
                         "type": "Point",
                         "coordinates": [ each['start_station_longitude'],each['start_station_latitude'] ] }}
+                    for each in stn_obj ]
+
+        ####--------
+
+        return Response(geo_json)
+
+
+class top_k_end_stn(APIView):
+
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, k = 5, format=None):
+
+        stn_obj = CitiBike.objects.values("end_station_id","end_station_name","end_station_latitude","end_station_longitude").annotate(Count("id")).order_by('-id__count')[:k]
+
+        #Need these stuff to plot on map
+        #end_station_id
+        #end_station_name
+        #end_station_latitude
+        #end_station_longitude
+
+        ######################## GeoJson Conversion code
+        geo_json = [ {"type": "Feature",
+                    "properties": {
+                        "id":  each['end_station_id'],
+                        "name": each['end_station_name'],
+                        "Count": each['id__count'],
+                        "popupContent":  "id=%s" % (each['end_station_name'],)
+                        },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [ each['end_station_longitude'],each['end_station_latitude'] ] }}
                     for each in stn_obj ]
 
         ####--------

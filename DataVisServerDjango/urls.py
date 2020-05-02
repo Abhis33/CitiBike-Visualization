@@ -16,11 +16,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from SimpleVisTry import views
-from SimpleVisTry.views import subscriber_data, top_k_start_stn
+from SimpleVisTry.views import subscriber_data, top_k_start_stn, top_k_end_stn
 
 urlpatterns = [
     path('', views.home, name='home'),
     path('api/subscriber_data/', subscriber_data.as_view(), name='home'),
+
     path('api/top_k_start_stn/', top_k_start_stn.as_view(), name='home'),
+    path('api/top_k_start_stn/<int:k>/', top_k_start_stn.as_view(), name='home'),
+
+    path('api/top_k_end_stn/', top_k_end_stn.as_view(), name='home'),
+    path('api/top_k_end_stn/<int:k>/', top_k_end_stn.as_view(), name='home'),
     path('admin/', admin.site.urls),
 ]
