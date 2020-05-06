@@ -1,5 +1,5 @@
 # DataVis
-Django Postgres Vis Tryout
+Data Visualization tool using Django Postgres and Bootstrap
 
 <H3># Data Visualization project for CitiBike Trip Dataset</H3>
 
