@@ -17,15 +17,15 @@ class subscriber_data(APIView):
     permission_classes = []
 
     def get(self, request, format=None):
-        values = [each['id__count'] for each in (CitiBike.objects.values("usertype").annotate(Count("id")))]
-        subscriber_type = [CitiBike['usertype'] for CitiBike in CitiBike.objects.values('usertype').distinct()]
+        qry = CitiBike.objects.values("usertype").annotate(Count("id"))
+
+        values = [each['id__count'] for each in (qry)]
+        subscriber_type = [each['usertype'] for each in (qry)]
         data = {
             "default" : values,
             "subscriber_type" : subscriber_type
         }
 
-        print("")
-        print(data)
         return Response(data)
 
 class top_k_start_stn(APIView):
@@ -59,7 +59,6 @@ class top_k_start_stn(APIView):
 
         return Response(geo_json)
 
-
 class top_k_end_stn(APIView):
 
     authentication_classes = []
@@ -91,3 +90,27 @@ class top_k_end_stn(APIView):
         ####--------
 
         return Response(geo_json)
+
+class hourly_avg_stn_trip_count(APIView):
+
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, stn_id = -999 , format=None):
+
+        if (stn_id == -999):
+            stn_id = CitiBike.objects.values("start_station_id").annotate(Count("id")).order_by('-id__count')[0]['start_station_id']
+            print("Default Station Id set to Top Start Station - "+str(stn_id))
+
+        tmp = CitiBike.objects.filter(start_station_id = stn_id)
+        stn_obj = tmp.values("starttime__hour").annotate(Count("id")).order_by('starttime__hour')
+
+        count_lst = [each['id__count'] for each in stn_obj]
+        hour_lst = [each['starttime__hour'] for each in stn_obj]
+
+        data = {
+            "default" : count_lst,
+            "hour" : hour_lst
+        }
+
+        return Response(data)

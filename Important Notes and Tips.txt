@@ -1,0 +1,12 @@
+### Getting into Postgres database in Docker
+- docker exec -it datavis_db_1 bash
+-- psql -U postgres
+--- set schema public;
+--- select * from "SimpleVisTry_citibike";
+
+### To delete Table and restart - NEVER Do ON PRODUCTION
+- Delete migrations folder in 'app_name'
+- drop table "SimpleVisTry_citibike";
+- delete from django_migrations where app = 'SimpleVisTry';
+- python manage.py makemigrations 'app_name'
+- python manage.py migrate

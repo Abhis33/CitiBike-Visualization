@@ -4,8 +4,8 @@ from postgres_copy import CopyManager
 # Create your models here.
 class CitiBike(models.Model):
     tripduration = models.IntegerField()
-    starttime =  models.DurationField()
-    stoptime = models.DurationField()
+    starttime =  models.DateTimeField()
+    stoptime = models.DateTimeField()
     start_station_id = models.IntegerField()
     start_station_name = models.TextField()
     start_station_latitude = models.FloatField()

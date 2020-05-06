@@ -18,7 +18,7 @@
 <body>
 
   <div class="container-fluid">
-    <div class="row">
+    <div class="row" id="title_bar">
       <div class="col-md-8">
         <h1>NYC CitiBike Visualization</h1>
       </div>
@@ -42,17 +42,25 @@
     <!-- Chart js example start -->
     <div class="row">
       <div class="col-lg-4">
-        <canvas id="myChart" width="400" height="450"></canvas>
+        <canvas id="custTypeChart" width="400" height="350"></canvas>
       </div>
       <!-- Chart js example End -->
 
       <!-- Mapbox example start -->
       <div class="col-lg-8">
         <p>Top K Stations</p>
-        <div id='simple-map' style='width: 100%; height: 400px;'></div>
+        <div id='simple-map' style='width: 100%; height: 300px;'></div>
       </div>
     </div>
       <!-- Mapbox example end -->
+
+
+      <!-- Chart js example start -->
+      <div class="row">
+        <div class="col-lg-12">
+          <canvas id="hourlySumTripChart" height="300"></canvas>
+      </div>
+      <!-- Chart js example End -->
   </div>
 
 
@@ -61,9 +69,16 @@
 <script>
   {% block jquery %}
 
+load_CustomerType_Chart();
+load_StartStn_Map();
+load_hourlySumTrip_Chart();
+
+function load_CustomerType_Chart(){
   var subscriber_endpoint = '/api/subscriber_data'
   var defaultData = []
   var labels = []
+  var chart_html_id = 'custTypeChart';
+  var chart_title = '# of Customer Type';
 
   $.ajax({
     method: "GET",
@@ -72,23 +87,23 @@
       console.log(data)
       labels = data.subscriber_type
       defaultData = data.default
-      setBarChart();
+      setBarChart(labels, defaultData, chart_html_id, chart_title);
     },
     error: function(error_data) {
       console.log("Error")
       console.log(error_data)
     }
   })
-
+}
   // Chart Js script start
-  function setBarChart() {
-    var ctx = document.getElementById('myChart').getContext('2d');
+  function setBarChart(labels,defaultData, chart_html_id, chart_title) {
+    var ctx = document.getElementById(chart_html_id).getContext('2d');
     var myChart = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: labels,
         datasets: [{
-          label: '# of Customer Type',
+          label: chart_title,
           data: defaultData,
           backgroundColor: [
             'rgba(255, 99, 132, 0.2)',
@@ -96,7 +111,25 @@
             'rgba(255, 206, 86, 0.2)',
             'rgba(75, 192, 192, 0.2)',
             'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)'
+            'rgba(255, 159, 64, 0.2)',
+            'rgba(240, 150, 70, 0.2)',
+            'rgba(100, 120, 30, 0.2)',
+            'rgba(50, 130, 80, 0.2)',
+            'rgba(23, 20, 254, 0.2)',
+            'rgba(221, 160, 104, 0.2)',
+            'rgba(205, 109, 4, 0.2)',
+            'rgba(20, 180, 170, 0.2)',
+            'rgba(30, 133, 45, 0.2)',
+            'rgba(101, 85, 55, 0.2)',
+            'rgba(255, 100, 100, 0.2)',
+            'rgba(90, 60, 64, 0.2)',
+            'rgba(90, 159, 30, 0.2)',
+            'rgba(250, 59, 64, 0.2)',
+            'rgba(155, 159, 164, 0.2)',
+            'rgba(235, 153, 6, 0.2)',
+            'rgba(5, 69, 134, 0.2)',
+            'rgba(215, 89, 124, 0.2)',
+            'rgba(55, 159, 84, 0.2)'
           ],
           borderColor: [
             'rgba(255, 99, 132, 1)',
@@ -104,7 +137,25 @@
             'rgba(255, 206, 86, 1)',
             'rgba(75, 192, 192, 1)',
             'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
+            'rgba(255, 159, 64, 1)',
+            'rgba(240, 150, 70, 1)',
+            'rgba(100, 120, 30, 1)',
+            'rgba(50, 130, 80, 1)',
+            'rgba(23, 20, 254, 1)',
+            'rgba(221, 160, 104, 1)',
+            'rgba(205, 109, 4, 1)',
+            'rgba(20, 180, 170, 1)',
+            'rgba(30, 133, 45, 1)',
+            'rgba(101, 85, 55, 1)',
+            'rgba(255, 100, 100, 1)',
+            'rgba(90, 60, 64, 1)',
+            'rgba(90, 159, 30, 1)',
+            'rgba(250, 59, 64, 1)',
+            'rgba(155, 159, 164, 1)',
+            'rgba(235, 153, 6, 1)',
+            'rgba(5, 69, 134, 1)',
+            'rgba(215, 89, 124, 1)',
+            'rgba(55, 159, 84, 1)'
           ],
           borderWidth: 1
         }]
@@ -123,10 +174,7 @@
   }
   // Chart Js script end
 
-load_StartStn_Map();
-
-function load_StartStn_Map(k=5,start_stn_bool = 1)
-{
+function load_StartStn_Map(k=5,start_stn_bool = 1){
   var chosen_api = 'top_k_start_stn/'
 
   if (start_stn_bool == 0)
@@ -163,6 +211,10 @@ function setTop5StnMap(geojson_stn) {
   center: [-73.9926947,40.740647]
   });
 
+  var popup = new mapboxgl.Popup({
+		closeButton: false
+	});
+
   map.on('load', function() {
   map.addSource('points', {
   'type': 'geojson',
@@ -186,8 +238,81 @@ function setTop5StnMap(geojson_stn) {
   'text-anchor': 'top'
   }
   });
+
+
+  		map.on('mousemove', function(e) {
+  			var features = map.queryRenderedFeatures(e.point, {
+  				layers: ['points']
+  			});
+  			// Change the cursor style as a UI indicator.
+  			map.getCanvas().style.cursor = features.length ? 'pointer' : '';
+
+  			if (!features.length) {
+  				popup.remove();
+  				return;
+  			}
+
+  			var feature = features[0];
+
+  			popup
+  				.setLngLat(e.lngLat)
+  				.setText(feature.properties.name + " - " + feature.properties.id )
+  				.addTo(map);
+  		});
+
+      map.on('click', function(e) {
+        // set bbox as 5px reactangle area around clicked point
+        var bbox = [
+          [e.point.x - 5, e.point.y - 5],
+          [e.point.x + 5, e.point.y + 5]
+        ];
+        var features = map.queryRenderedFeatures(bbox, {
+          layers: ['points']
+        });
+
+        var filter = features.reduce(
+          function(memo, feature) {
+            memo.push(feature.properties.id);
+            return memo;
+          },
+          ['id']
+        );
+
+        //filter variable gives us output as 'id, <stn_id>'
+        //filter[1] returns id of selected station.
+
+        load_hourlySumTrip_Chart(stn_id = filter[1]);
+      });
   });
   // Mapbox script end
+}
+
+function load_hourlySumTrip_Chart(stn_id = -999){
+  var subscriber_endpoint = '/api/hourly_avg_stn_trip_count/';
+  var defaultData = []
+  var labels = []
+  var chart_html_id = 'hourlySumTripChart';
+  var chart_title = 'Hourly trip Count of Selected Station over the month of December 2019';
+
+  if (stn_id != -999)
+  {
+    subscriber_endpoint = '/api/hourly_avg_stn_trip_count/' + stn_id;
+  }
+
+  $.ajax({
+    method: "GET",
+    url: subscriber_endpoint,
+    success: function(data) {
+      console.log(data)
+      labels = data.hour
+      defaultData = data.default
+      setBarChart(labels,defaultData, chart_html_id, chart_title);
+    },
+    error: function(error_data) {
+      console.log("Error")
+      console.log(error_data)
+    }
+  })
 }
 
   {% endblock %}
